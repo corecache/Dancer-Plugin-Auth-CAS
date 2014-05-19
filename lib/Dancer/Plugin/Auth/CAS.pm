@@ -18,7 +18,7 @@ use HTTP::Headers;
 use Authen::CAS::Client;
 use Scalar::Util 'blessed';
 
-our $VERSION = '0.01';
+our $VERSION;
 
 register_exception('InvalidConfig', message_pattern => "Invalid or missing configuration: %s");
 
