@@ -1,5 +1,5 @@
 package Dancer::Plugin::Auth::CAS;
-
+$Dancer::Plugin::Auth::CAS::VERSION = '1.002';
 
 =head1 NAME
 
@@ -43,40 +43,50 @@ sub _auth_cas {
     my $ticket = $options{ticket} // params->{ticket};
 
     my $cas = Authen::CAS::Client->new( $base_url );
-    
+
     my $user = session($cas_user_map);
 
     unless( $user ) {
+
+        my $response = Dancer::Response->new( status => 302 );
+        my $redirect_url;
+
         if( $ticket) {
             debug "Trying to validate via CAS '$cas_version' with ticket=$ticket";
             
             my $r;
             if( $cas_version eq "1.0" ) {
                 $r = $cas->validate( $service, $ticket );
-            } 
+            }
             elsif( $cas_version eq "2.0" ) {
                 $r = $cas->service_validate( $service, $ticket );
-            } 
+            }
             else {
                 raise( InvalidConfig => "cas_version '$cas_version' not supported");
             }
-            
+
             if( $r->is_success ) {
                 info "Authenticated as: ".$r->user;
 
                 session $cas_user_map => _map_attributes( $r->doc, $mapping );
+                $redirect_url = uri_for( request->path );
 
-                redirect uri_for( request->path );
+            } elsif( $r->is_failure ) {
+                debug "Failed to authenticate: ".$r->code." / ".$r->message;
+                $redirect_url = uri_for( $cas_logout_url );
             } else {
-                warning "Unable to authenticate: ".blessed($r);
-                redirect uri_for( $cas_logout_url );
+                error "Unable to authenticate: ".$r->error;
+                $redirect_url = uri_for( $cas_logout_url );
             }
-            
+
         } else {
             debug "Redirecting to CAS: ".$cas->login_url( $service );
-            status 302;
-            header 'Location' => $cas->login_url( $service );
+            $redirect_url = $cas->login_url( $service );
         }
+
+        # General redir response
+        $response->header( Location => $redirect_url );
+        halt( $response );
     }
     
 }
