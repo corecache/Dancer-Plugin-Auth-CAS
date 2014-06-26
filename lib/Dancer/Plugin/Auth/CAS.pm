@@ -21,6 +21,7 @@ use Scalar::Util 'blessed';
 our $VERSION;
 
 register_exception('InvalidConfig', message_pattern => "Invalid or missing configuration: %s");
+register_exception('CasError', message_pattern => "Unable to auth with CAS backend: %s");
 
 my $settings = plugin_setting;
 
@@ -75,8 +76,10 @@ sub _auth_cas {
                 debug "Failed to authenticate: ".$r->code." / ".$r->message;
                 $redirect_url = uri_for( $cas_logout_url );
             } else {
+
+                # Raise hard error, backend has errors
                 error "Unable to authenticate: ".$r->error;
-                $redirect_url = uri_for( $cas_logout_url );
+                raise( CasError => $r->error );
             }
 
         } else {
