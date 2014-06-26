@@ -68,14 +68,18 @@ sub _auth_cas {
             }
 
             if( $r->is_success ) {
-                info "Authenticated as: ".$r->user;
 
+                # Redirect to given path
+                info "Authenticated as: ".$r->user;
                 session $cas_user_map => _map_attributes( $r->doc, $mapping );
                 $redirect_url = uri_for( request->path );
 
             } elsif( $r->is_failure ) {
+
+                # Redirect to denied
                 debug "Failed to authenticate: ".$r->code." / ".$r->message;
-                $redirect_url = uri_for( $cas_logout_url );
+                $redirect_url = uri_for( $cas_denied_url );
+
             } else {
 
                 # Raise hard error, backend has errors
@@ -84,6 +88,7 @@ sub _auth_cas {
             }
 
         } else {
+            # Has no ticket, needs one
             debug "Redirecting to CAS: ".$cas->login_url( $service );
             $redirect_url = $cas->login_url( $service );
         }
