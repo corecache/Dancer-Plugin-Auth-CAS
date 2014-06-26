@@ -1,5 +1,4 @@
 package Dancer::Plugin::Auth::CAS;
-$Dancer::Plugin::Auth::CAS::VERSION = '1.002';
 
 =head1 NAME
 
