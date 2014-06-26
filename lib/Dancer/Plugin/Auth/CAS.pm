@@ -30,8 +30,9 @@ sub _auth_cas {
 
     my $base_url = $settings->{cas_url} // raise( InvalidConfig => "cas_url is unset" );
     my $cas_version = $settings->{cas_version} ||  raise( InvalidConfig => "cas_version is unset");
-    my $cas_user_map = $settings->{cas_user_map} || 'cas_user';
-    my $cas_logout_url = $settings->{cas_logout_path} || '/logout';
+    my $cas_user_map = $options{cas_user_map} || $settings->{cas_user_map} || 'cas_user';
+    my $cas_logout_url = $options{cas_logout_path} || $settings->{cas_logout_path} || '/logout';
+    my $cas_denied_url = $options{cas_denied_path} || $settings->{cas_denied_path} || '/denied';
 
     # check supported versions
     unless( grep(/$cas_version/, qw( 2.0 1.0 )) ) {
