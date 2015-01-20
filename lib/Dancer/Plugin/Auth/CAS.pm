@@ -32,6 +32,9 @@ sub _auth_cas {
     my $cas_user_map = $options{cas_user_map} || $settings->{cas_user_map} || 'cas_user';
     my $cas_denied_url = $options{cas_denied_path} || $settings->{cas_denied_path} || '/denied';
 
+    my $ssl_verify_hostname = $settings->{ssl_verify_hostname};
+    $ENV{"PERL_LWP_SSL_VERIFY_HOSTNAME"} = defined( $ssl_verify_hostname ) ? $ssl_verify_hostname : 1;
+
     # check supported versions
     unless( grep(/$cas_version/, qw( 2.0 1.0 )) ) {
         raise( InvalidConfig => "cas_version '$cas_version' not supported");
