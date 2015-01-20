@@ -1,3 +1,8 @@
+1.128       Tue Jan 20 15:44:21 2015 +0100
+    [ Minor ]
+    * Added config setting 'ssl_verify_hostname' to override ssl_verify_hostname in LWP::UserAgent which is beeing used in Authen::CAS::Client. Defaults to true.
+
+
 1.127       Wed Jul 02 18:14:22 2014 +0200
 
     [ Patch ]
